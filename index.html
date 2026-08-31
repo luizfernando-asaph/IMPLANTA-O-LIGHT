@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projeto Light/RJ · Estruturação e Implantação — Status Report Executivo</title>
+<style>
+  :root{
+    --green:#15803D; --green-bg:#EEFBF1;
+    --amber:#C2660A; --amber-bg:#FFF6E8;
+    --red:#B91C1C; --red-bg:#FDECEC;
+    --neutral:#6B6580; --neutral-bg:#F4F2FB;
+    --ink:#1C1B22; --ink-soft:#4A4757; --line:#E7E2ED;
+    --paper:#FBFAFC; --panel:#FFFFFF;
+    --accent:#3E1F5C; --accent-2:#E7B33E;
+    --radius:14px;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Segoe UI','Aptos Narrow',-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:inherit; margin:0 0 .4em; letter-spacing:-0.01em; color:var(--ink);}
+  h2{font-size:1.9rem; font-weight:700;}
+  h3{font-size:1.15rem; font-weight:700;}
+  p{margin:0 0 1em;}
+  a{color:inherit;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+
+  header.top{position:sticky; top:0; z-index:50; background:var(--accent); color:#fff; border-bottom:3px solid var(--accent-2);}
+  .top-inner{max-width:var(--maxw); margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .brand{font-size:.85rem; letter-spacing:.02em; opacity:.9;}
+  nav{display:flex; gap:2px; flex-wrap:wrap;}
+  nav a{font-size:.8rem; color:#F0E8F7; text-decoration:none; padding:6px 9px; border-radius:8px; opacity:.85; white-space:nowrap;}
+  nav a:hover{background:rgba(255,255,255,.12); opacity:1;}
+
+  .hero{background:linear-gradient(180deg, var(--accent) 0%, #542A7D 55%, var(--paper) 55%); color:#fff; padding:56px 0 90px;}
+  .hero .wrap{position:relative;}
+  .eyebrow{font-size:.85rem; color:var(--accent-2); font-weight:600; margin-bottom:10px;}
+  .hero h1{font-size:2.6rem; color:#fff; max-width:16ch;}
+  .hero .sub{font-size:1.2rem; color:#E2D3EE; max-width:38ch; margin-top:6px;}
+  .status-pill{display:inline-flex; align-items:center; gap:8px; margin-top:22px; background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25); padding:9px 16px; border-radius:999px; font-size:.9rem;}
+  .status-pill .dot{width:9px;height:9px;border-radius:50%;background:var(--accent-2);}
+  .hero-meta{margin-top:28px; display:flex; gap:32px; flex-wrap:wrap; font-size:.88rem; color:#D0BEE0;}
+  .hero-meta strong{display:block; color:#fff; font-size:1.05rem; font-weight:700;}
+
+  section{padding:56px 0; border-top:1px solid var(--line);}
+  section:first-of-type{border-top:none;}
+  .kicker{font-size:.85rem; color:var(--ink-soft); margin-bottom:6px;}
+
+  .grid{display:grid; gap:16px;}
+  .grid-4{grid-template-columns:repeat(4,1fr);}
+  .grid-3{grid-template-columns:repeat(3,1fr);}
+  .grid-2{grid-template-columns:repeat(2,1fr);}
+  @media(max-width:800px){.grid-4,.grid-3,.grid-2{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:520px){.grid-4,.grid-3,.grid-2{grid-template-columns:1fr;}}
+
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px;}
+  .stat .n{font-size:2.1rem; font-weight:800; line-height:1;}
+  .stat .l{font-size:.85rem; color:var(--ink-soft); margin-top:6px;}
+  .stat.green .n{color:var(--green);} .stat.amber .n{color:var(--amber);}
+  .stat.red .n{color:var(--red);} .stat.neutral .n{color:var(--neutral);}
+  .stat.accent .n{color:var(--accent);}
+
+  .badge{display:inline-block; font-size:.78rem; font-weight:700; padding:3px 10px; border-radius:999px;}
+  .badge.green{color:var(--green); background:var(--green-bg);}
+  .badge.amber{color:var(--amber); background:var(--amber-bg);}
+  .badge.red{color:var(--red); background:var(--red-bg);}
+  .badge.neutral{color:var(--neutral); background:var(--neutral-bg);}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px;}
+  .card + .card{margin-top:14px;}
+
+  .callout{border-radius:var(--radius); padding:18px 20px; border:1px solid; margin:18px 0;}
+  .callout.green{background:var(--green-bg); border-color:#BFE8CB; color:#0F5A2B;}
+  .callout.amber{background:var(--amber-bg); border-color:#F2D19B; color:#8A4A08;}
+  .callout.red{background:var(--red-bg); border-color:#F3BEBE; color:#8C1D1D;}
+  .callout.neutral{background:var(--neutral-bg); border-color:#DAD5EE; color:#4A4560;}
+  .callout .lbl{font-weight:700; margin-bottom:4px; display:block;}
+
+  table{width:100%; border-collapse:collapse; font-size:.92rem;}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line);}
+  th{font-size:.78rem; text-transform:uppercase; letter-spacing:.03em; color:var(--ink-soft); font-weight:700;}
+  tr:last-child td{border-bottom:none;}
+  .num{text-align:right; font-variant-numeric:tabular-nums;}
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius);}
+  .table-wrap table{border:none;}
+  .table-wrap th{background:#F8F6FA;}
+
+  .step-list{list-style:none; margin:0; padding:0;}
+  .step-list li{display:flex; gap:14px; padding:10px 0; border-bottom:1px solid var(--line); align-items:flex-start;}
+  .step-list li:last-child{border-bottom:none;}
+  .step-list .stepn{flex:0 0 26px; height:26px; border-radius:50%; background:var(--accent); color:#fff; font-size:.8rem; font-weight:700; display:flex; align-items:center; justify-content:center;}
+
+  .frente-list{list-style:none; margin:0; padding:0; display:grid; gap:8px;}
+  .frente-list li{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; font-size:.92rem;}
+
+  .roadmap-track{position:relative; padding-left:26px; margin-top:8px;}
+  .roadmap-track::before{content:"";position:absolute; left:8px; top:4px; bottom:4px; width:2px; background:var(--line);}
+  .rm-item{position:relative; padding-bottom:22px;}
+  .rm-item::before{content:""; position:absolute; left:-26px; top:3px; width:14px; height:14px; border-radius:50%; border:3px solid var(--panel); background:var(--green);}
+  .rm-item.active::before{background:var(--amber);}
+  .rm-item.future::before{background:var(--neutral);}
+  .rm-item.risk::before{background:var(--red);}
+  .rm-item .rm-date{font-size:.78rem; color:var(--ink-soft); font-weight:700;}
+  .rm-item .rm-title{font-weight:700; margin:2px 0 2px;}
+
+  .team-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:16px;}
+  @media(max-width:700px){.team-grid{grid-template-columns:1fr;}}
+  .team-card h4{font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:8px;}
+  .team-card .person{font-weight:700;}
+  .team-card .role{font-size:.85rem; color:var(--ink-soft); margin-bottom:8px;}
+
+  footer{background:var(--accent); color:#E2D3EE; padding:40px 0; margin-top:40px;}
+  footer .sig{color:#fff; font-weight:700;}
+  footer a{color:var(--accent-2); text-decoration:none;}
+
+  .note-list{margin:0; padding-left:1.2em;}
+  .note-list li{margin-bottom:10px; font-size:.92rem; color:var(--ink-soft);}
+  .note-list strong{color:var(--ink);}
+
+  .foot-line{font-size:.8rem; color:var(--ink-soft); text-align:center; margin-top:10px;}
+  .section-foot{font-size:.82rem; color:var(--ink-soft); margin-top:22px; padding-top:14px; border-top:1px dashed var(--line);}
+  .chip-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; margin-top:10px;}
+  .chip{background:var(--panel); border:1px solid var(--line); border-radius:9px; padding:8px 10px; font-size:.85rem; display:flex; justify-content:space-between; gap:6px; align-items:center;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">Meireles e Freitas · PMO</div>
+    <nav>
+      <a href="#overview">Overview</a>
+      <a href="#indicadores">Indicadores</a>
+      <a href="#marco1">Marco 1</a>
+      <a href="#marco2">Marco 2</a>
+      <a href="#marco3">Marco 3</a>
+      <a href="#marco4">Marco 4</a>
+      <a href="#requisitos">Requisitos</a>
+      <a href="#riscos">Riscos</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#equipe">Equipe</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">STATUS REPORT EXECUTIVO</div>
+    <h1>Projeto Light/RJ</h1>
+    <div class="sub">Estruturação e Implantação Operacional</div>
+    <div class="status-pill"><span class="dot"></span> TAP INICIAL · KICKOFF REALIZADO 25/08/2026 · RIO DE JANEIRO</div>
+    <div class="hero-meta">
+      <div><strong>31/08/2026</strong>Atualização deste report</div>
+      <div><strong>2,9%</strong>Avanço da mobilização (2 de 68)</div>
+      <div><strong>10 equipes</strong>2 turnos · seg–sáb 07h–20h</div>
+    </div>
+  </div>
+</div>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="kicker">Operação Light/RJ — Estruturação e Implantação</div>
+    <h2>Overview do Projeto</h2>
+
+    <div class="grid grid-2" style="margin-top:18px; align-items:start;">
+      <div class="card">
+        <h3>Cliente &amp; Escopo</h3>
+        <p><strong>Cliente:</strong> Light<br>
+        <strong>Empresa executora:</strong> Grupo Meireles e Freitas<br>
+        <strong>Tipo:</strong> Implantação operacional<br>
+        <strong>Status do TAP:</strong> inicial — datas e informações contratuais ainda a validar.</p>
+        <p style="margin-bottom:0;">Implantar uma operação de atendimento em campo com estrutura enxuta, capacidade em dois turnos e suporte de supervisão, administração, segurança, frota e infraestrutura.</p>
+      </div>
+      <div class="card">
+        <h3>Escopo Operacional</h3>
+        <ul style="margin:0; padding-left:1.1em;">
+          <li><strong>10 equipes</strong> — 5 no primeiro turno, 5 no segundo</li>
+          <li>Operação de segunda a sábado, das 07h às 20h</li>
+          <li>Supervisão, apoio administrativo e TST</li>
+          <li>Motocicletas em modelo <strong>agregado</strong> (colaborador possui a moto) — mudança de escopo solicitada pelo cliente, que substituiu o modelo próprio/alugado original</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout red" style="margin-top:22px;">
+      <span class="lbl">🔴 Destaque — atenção ao prazo contratual</span>
+      A <strong>assinatura do contrato</strong> segue como "A Iniciar" no cronograma detalhado, com prazo original de 28/08/2026 já vencido nesta atualização (31/08). O restante do cronograma de mobilização depende diretamente desta formalização — recomenda-se tratamento prioritário.
+    </div>
+  </div>
+</section>
+
+<section id="indicadores">
+  <div class="wrap">
+    <div class="kicker">Cronograma de mobilização</div>
+    <h2>Indicadores de Avanço</h2>
+    <div class="grid grid-4">
+      <div class="stat green"><div class="n">2</div><div class="l">Concluídas · 3%</div></div>
+      <div class="stat amber"><div class="n">14</div><div class="l">Em Andamento · 21%</div></div>
+      <div class="stat neutral"><div class="n">52</div><div class="l">A Iniciar · 76%</div></div>
+      <div class="stat accent"><div class="n">2,9%</div><div class="l">% Avanço geral</div></div>
+    </div>
+
+    <div class="callout neutral" style="margin-top:20px;">
+      <span class="lbl">⚑ Destaque</span>
+      Projeto em fase inicial: sinergia com a operação estabelecida e reunião de kickoff realizadas (25/08) — 2 das 68 atividades mapeadas. As 14 atividades em andamento estão concentradas na atração/seleção simultânea de 13 posições de RH (gestor do contrato, supervisores, técnico de segurança, assistentes e agentes). As 52 restantes (76%) — treinamentos SESMT, documentação, aprovação do cliente, suprimentos, frota e base de apoio — seguem A Iniciar, a maior parte programada para outubro.
+    </div>
+  </div>
+</section>
+
+<section id="marco1">
+  <div class="wrap">
+    <div class="kicker">Operação Light/RJ · Estruturação e Implantação</div>
+    <h2>Marco 1 | Migração dos Colaboradores</h2>
+
+    <div class="grid grid-2" style="margin-top:18px;">
+      <div class="card">
+        <h3>Assinatura do Contrato <span class="badge red">A Iniciar — prazo vencido</span></h3>
+        <p style="margin-bottom:0;">Prazo original 28/08/2026, já vencido. Pré-requisito formal para o avanço do projeto.</p>
+        <p class="section-foot" style="margin-top:8px;">24/08 → 28/08 (vencido)</p>
+      </div>
+      <div class="card">
+        <h3>Atração/Seleção — 13 posições <span class="badge amber">Em Andamento</span></h3>
+        <p style="margin-bottom:0;">Gestor do contrato, Supervisores de Campo, Supervisor Administrativo, Auxiliar Administrativo, Assistente de Frota, Assistente de Qualidade, Analista de Planejamento, Assistente de RH, Assistente de DP, Auxiliar de Almoxarifado, Agentes e Técnico de Segurança do Trabalho — recrutamento simultâneo em curso.</p>
+        <p class="section-foot" style="margin-top:8px;">26/08 → 17/09</p>
+      </div>
+      <div class="card">
+        <h3>Validar Acordo Coletivo <span class="badge amber">Em Andamento</span></h3>
+        <p style="margin-bottom:0;">Validação junto ao Departamento de Pessoal.</p>
+        <p class="section-foot" style="margin-top:8px;">28/08</p>
+      </div>
+      <div class="card">
+        <h3>Exames Médicos, Documentação &amp; Admissão <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Exames SESMT, entrega de documentação, admissão, carteira digital e confecção de crachás.</p>
+        <p class="section-foot" style="margin-top:8px;">21/09 → 11/10</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="marco2">
+  <div class="wrap">
+    <div class="kicker">Operação Light/RJ · Estruturação e Implantação</div>
+    <h2>Marco 2 | Treinamento</h2>
+
+    <div class="grid grid-2" style="margin-top:18px;">
+      <div class="card">
+        <h3>Integração de Segurança | Meireles <span class="badge neutral">A Iniciar</span></h3>
+        <p class="section-foot" style="margin-top:8px;">01/10</p>
+      </div>
+      <div class="card">
+        <h3>NR-10 <span class="badge neutral">A Iniciar</span></h3>
+        <p class="section-foot" style="margin-top:8px;">02/10 → 03/10</p>
+      </div>
+      <div class="card">
+        <h3>Direção Defensiva — 16 horas <span class="badge neutral">A Iniciar</span></h3>
+        <p class="section-foot" style="margin-top:8px;">05/10 → 06/10</p>
+      </div>
+      <div class="card">
+        <h3>Treinamento da Equipe Técnica <span class="badge neutral">A Iniciar</span></h3>
+        <p class="section-foot" style="margin-top:8px;">07/10</p>
+      </div>
+    </div>
+    <p class="section-foot">Toda a frente de treinamento depende do fechamento da equipe (Marco 1) e está programada para a primeira semana de outubro.</p>
+  </div>
+</section>
+
+<section id="marco3">
+  <div class="wrap">
+    <div class="kicker">Operação Light/RJ · Estruturação e Implantação</div>
+    <h2>Marco 3 | Aprovação do Cliente &amp; Implantação</h2>
+
+    <div class="grid grid-2" style="margin-top:18px;">
+      <div class="card">
+        <h3>Cadastro Sistema &amp; Documentação SESMT <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Cadastro no sistema do cliente, PCMSO, PGR, LTCAT, recebimento e organização de documentação.</p>
+        <p class="section-foot" style="margin-top:8px;">01/10 → 07/10</p>
+      </div>
+      <div class="card">
+        <h3>Upload Sistema (DP) &amp; Aprovação do Cliente <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Upload da documentação no sistema do DP e aprovação formal pelo cliente.</p>
+        <p class="section-foot" style="margin-top:8px;">08/10 → 12/10</p>
+      </div>
+      <div class="card">
+        <h3>Integração de Segurança (sistema do cliente) <span class="badge neutral">A Iniciar</span></h3>
+        <p class="section-foot" style="margin-top:8px;">12/10 → 13/10</p>
+      </div>
+      <div class="card">
+        <h3>Início das Atividades de Campo <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Marco final de implantação — início da operação em campo.</p>
+        <p class="section-foot" style="margin-top:8px;">13/10</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="marco4">
+  <div class="wrap">
+    <div class="kicker">Operação Light/RJ · Estruturação e Implantação</div>
+    <h2>Marco 4 | Suprimentos, Frota &amp; Base de Apoio</h2>
+
+    <div class="grid grid-3" style="margin-top:18px;">
+      <div class="card">
+        <h3>Suprimentos <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Abertura de requisições, EPIs/EPCs, equipamentos e ferramentas, fardamento e jaqueta air bag.</p>
+        <p class="section-foot" style="margin-top:8px;">25/08 → 05/10</p>
+      </div>
+      <div class="card">
+        <h3>Frota <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Disponibilização de motocicletas (modelo agregado), plotagem e locação de 1 veículo leve 4x2.</p>
+        <p class="section-foot" style="margin-top:8px;">31/08 → 05/10</p>
+      </div>
+      <div class="card">
+        <h3>Facilities <span class="badge neutral">A Iniciar</span></h3>
+        <p style="margin-bottom:0;">Telefonia fixa e móvel, notebooks, celulares e câmeras.</p>
+        <p class="section-foot" style="margin-top:8px;">31/08 → 01/10</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:26px;">Base de Apoio (Cowork)</h3>
+    <p style="margin-bottom:6px;">10 itens em andamento de estruturação, todos "A Iniciar", janela 31/08 → 01/10:</p>
+    <div class="chip-grid">
+      <div class="chip">Definir base de apoio <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Validação do imóvel c/ diretoria <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Assinatura do contrato (base) <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Pagamento do caução <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Entrega das chaves <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Disponibilizar base de apoio <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Mobiliário (mesas/cadeiras/armários) <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Materiais de uso e consumo <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Adequação legal da base <span class="badge neutral">A Iniciar</span></div>
+      <div class="chip">Coworking | Base de apoio <span class="badge neutral">A Iniciar</span></div>
+    </div>
+    <p class="section-foot">Escopo de infraestrutura conforme TAP: cowork com 4 posições de trabalho (1 reserva), armazenamento controlado de equipamentos, sala de reunião e estacionamento próximo com capacidade para 6 motos e 1 veículo.</p>
+  </div>
+</section>
+
+<section id="requisitos">
+  <div class="wrap">
+    <div class="kicker">Termo de Abertura do Projeto (TAP) — entregáveis e premissas</div>
+    <h2>Requisitos &amp; Premissas</h2>
+
+    <h3 style="margin-top:18px;">Entregáveis (E01–E08)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Entregável</th><th>Descrição</th><th>Responsável</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>E01</td><td>Validação do escopo</td><td>Validar escopo, quantitativos e requisitos</td><td>Projetos/Operações</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E02</td><td>Pessoas</td><td>Supervisor, auxiliar administrativo e TST</td><td>RH/Operações</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E03</td><td>Frota</td><td>5 motos agregadas + 2 backup + 1 veículo 4x2</td><td>Frota/Suprimentos</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E04</td><td>Cowork/base</td><td>4 posições + reserva e armazenamento</td><td>Administrativo</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E05</td><td>Estacionamento</td><td>6 motos + 1 veículo, próximo à base</td><td>Administrativo</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E06</td><td>Equipamentos</td><td>Notebooks/smartphones e itens de campo</td><td>TIC/Suprimentos</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E07</td><td>Segurança</td><td>Documentação, treinamentos e requisitos</td><td>TST/SSMA</td><td><span class="badge neutral">Pendente</span></td></tr>
+          <tr><td>E08</td><td>Go-live</td><td>Início da operação</td><td>Projetos/Operações</td><td><span class="badge neutral">Pendente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:26px;">Premissas (P01–P06)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Tema</th><th>Premissa / Decisão</th><th>Responsável</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>P01</td><td>Jornada</td><td>Segunda a sábado, 07h às 20h; 5 equipes por turno</td><td>Operações</td><td><span class="badge amber">A validar</span></td></tr>
+          <tr><td>P02</td><td>Frota</td><td>5 motos compartilhadas + 1 moto backup</td><td>Frota</td><td><span class="badge amber">A validar</span></td></tr>
+          <tr><td>P03</td><td>Veículo</td><td>1 veículo leve 4x2 de apoio</td><td>Frota</td><td><span class="badge amber">A validar</span></td></tr>
+          <tr><td>P04</td><td>Base</td><td>Cowork com 4 posições e sala de reunião disponível</td><td>Administrativo</td><td><span class="badge amber">A validar</span></td></tr>
+          <tr><td>P05</td><td>Estacionamento</td><td>Capacidade prevista para 6 motos e 1 veículo</td><td>Administrativo</td><td><span class="badge amber">A validar</span></td></tr>
+          <tr><td>P06</td><td>Pessoas</td><td>Supervisor, auxiliar administrativo e TST</td><td>RH/Operações</td><td><span class="badge amber">A validar</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-foot">Todos os entregáveis e premissas do TAP ainda não têm prazo definido ("A definir") — reflexo da fase inicial do projeto, anterior à formalização contratual.</p>
+  </div>
+</section>
+
+<section id="riscos">
+  <div class="wrap">
+    <div class="kicker">Riscos iniciais mapeados no TAP</div>
+    <h2>Riscos</h2>
+    <div class="table-wrap" style="margin-top:18px;">
+      <table>
+        <thead><tr><th>ID</th><th>Risco</th><th>Probabilidade</th><th>Impacto</th><th>Criticidade</th><th>Responsável</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>R01</td><td>Atraso na contratação</td><td>Média</td><td>Alto</td><td><span class="badge red">Alto</span></td><td>RH</td><td><span class="badge red">Aberto</span></td></tr>
+          <tr><td>R02</td><td>Atraso na disponibilização de motos</td><td>Média</td><td>Alto</td><td><span class="badge red">Alto</span></td><td>Frota</td><td><span class="badge red">Aberto</span></td></tr>
+          <tr><td>R03</td><td>Veículo de apoio indisponível</td><td>Baixa</td><td>Alto</td><td><span class="badge amber">Médio</span></td><td>Frota</td><td><span class="badge red">Aberto</span></td></tr>
+          <tr><td>R04</td><td>Estacionamento inadequado/distante</td><td>Média</td><td>Médio</td><td><span class="badge amber">Médio</span></td><td>Administrativo</td><td><span class="badge red">Aberto</span></td></tr>
+          <tr><td>R05</td><td>Demanda acima do dimensionamento</td><td>Média</td><td>Alto</td><td><span class="badge red">Alto</span></td><td>Operações</td><td><span class="badge red">Aberto</span></td></tr>
+          <tr><td>R06</td><td>Roubo/perda/manutenção de moto</td><td>Média</td><td>Alto</td><td><span class="badge red">Alto</span></td><td>Frota/Operações</td><td><span class="badge red">Aberto</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="section-foot">6 de 6 riscos iniciais seguem abertos — nenhum foi mitigado ou encerrado até esta atualização. Mitigações previstas: antecipar R&amp;S com candidatos reserva (R01); acionar fornecedores e acompanhar lead time de motos (R02); manter 1 moto backup e rotina de manutenção (R06); mapear opções de estacionamento próximas à base (R04); criar gatilho de redimensionamento por demanda (R05).</p>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="wrap">
+    <div class="kicker">Linha do tempo dos principais marcos do projeto</div>
+    <h2>Roadmap Consolidado</h2>
+
+    <div class="roadmap-track" style="margin-top:22px;">
+      <div class="rm-item"><div class="rm-date">25/08</div><div class="rm-title">Sinergia com a operação e reunião de kickoff realizadas</div></div>
+      <div class="rm-item risk"><div class="rm-date">28/08</div><div class="rm-title">Assinatura do contrato — prazo vencido, ainda A Iniciar</div></div>
+      <div class="rm-item active"><div class="rm-date">26/08–17/09</div><div class="rm-title">Atração/seleção de 13 posições — em andamento</div></div>
+      <div class="rm-item future"><div class="rm-date">21/09–11/10</div><div class="rm-title">Exames médicos, documentação, admissão e crachás</div></div>
+      <div class="rm-item future"><div class="rm-date">01–07/10</div><div class="rm-title">Treinamentos SESMT (integração, NR-10, direção defensiva, técnica)</div></div>
+      <div class="rm-item future"><div class="rm-date">01–12/10</div><div class="rm-title">Cadastro, documentação e aprovação do cliente</div></div>
+      <div class="rm-item future"><div class="rm-date">13/10</div><div class="rm-title">Início das atividades de campo</div></div>
+    </div>
+
+    <h3 style="margin-top:26px;">Leitura do Roadmap</h3>
+    <p style="margin-bottom:0;">O projeto está na fase mais inicial de mobilização: kickoff realizado, mas a assinatura do contrato — pré-requisito formal para o restante do cronograma — segue pendente com prazo já vencido. A frente de Pessoal avança em paralelo, com 13 posições em recrutamento simultâneo. Toda a cadeia subsequente (treinamentos, documentação, aprovação do cliente e início de campo em 13/10) depende da regularização contratual e do fechamento da equipe nas próximas semanas.</p>
+  </div>
+</section>
+
+<section id="equipe">
+  <div class="wrap">
+    <div class="kicker">Estrutura de pessoas prevista no TAP</div>
+    <h2>Equipe &amp; Estrutura Organizacional</h2>
+    <div class="grid grid-2" style="margin-top:18px;">
+      <div class="card">
+        <h3>Estrutura Operacional (TAP)</h3>
+        <ul style="margin:0; padding-left:1.1em;">
+          <li>1 Supervisor de Campo</li>
+          <li>1 Auxiliar Administrativo</li>
+          <li>1 Técnico de Segurança do Trabalho (TST)</li>
+          <li>Gerente de Operações — estrutura compartilhada/preposto</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Estrutura Ampliada em Recrutamento</h3>
+        <p style="margin-bottom:0;">O cronograma de mobilização detalha um quadro mais amplo de apoio já em processo de atração/seleção: Gestor do Contrato, Supervisores de Campo, Supervisor Administrativo, Auxiliar Administrativo, Assistente de Frota, Assistente de Qualidade, Analista de Planejamento, Assistente de RH, Assistente de DP, Auxiliar de Almoxarifado, Agentes e Técnico de Segurança do Trabalho.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:30px;">Frota &amp; Infraestrutura Prevista</h3>
+    <div class="grid grid-3">
+      <div class="stat accent"><div class="n">5+1</div><div class="l">Motos operacionais + 1 backup (modelo agregado)</div></div>
+      <div class="stat accent"><div class="n">1</div><div class="l">Veículo leve 4x2 de apoio</div></div>
+      <div class="stat accent"><div class="n">4</div><div class="l">Posições no cowork (1 reserva)</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="observacoes">
+  <div class="wrap">
+    <div class="kicker">Nota desta atualização</div>
+    <h2>Observações da fonte (31/08/2026)</h2>
+    <ul class="note-list">
+      <li><strong>Primeira publicação:</strong> este é o primeiro report executivo gerado para o projeto Light/RJ; o repositório GitHub estava vazio até esta atualização.</li>
+      <li><strong>Divergência entre abas 2_CRONOGRAMA DO PROJETO e 3_ROADMAP:</strong> a aba 3_ROADMAP (visão resumida, 58 itens) classifica "Assinatura do contrato" como <strong>"Concluído"</strong>, enquanto a aba 2_CRONOGRAMA DO PROJETO (detalhada, 68 itens, coincide exatamente com a legenda de totais 2/14/52) mantém o item como <strong>"A Iniciar"</strong>, com prazo vencido em 28/08. Este report prioriza a aba mais detalhada e trata a assinatura do contrato como pendência crítica, não concluída — recomenda-se validar e alinhar as duas planilhas na origem.</li>
+      <li><strong>Divergência de totais entre as planilhas:</strong> a aba 3_ROADMAP soma 58 atividades (rollup mais simplificado), enquanto a 2_CRONOGRAMA DO PROJETO detalha 68 atividades — a diferença vem principalmente do detalhamento das 13 posições de RH e dos itens de suprimentos/base de apoio, que aparecem agrupados na aba resumida.</li>
+      <li><strong>Estrutura de pessoas em expansão:</strong> a estrutura mínima descrita no TAP (Seção 3) — 1 Supervisor de Campo, 1 Auxiliar Administrativo, 1 TST e Gerente de Operações compartilhado — é menor do que o quadro de 13 posições já em processo de recrutamento no cronograma de mobilização. Isso reflete uma evolução/detalhamento do escopo desde a assinatura do TAP inicial, não um erro de lançamento.</li>
+      <li><strong>Referência a "Aprovação Benhoft" (aba 2_CRONOGRAMA, Marco 3):</strong> o rótulo do agrupamento cita "Benhoft", termo não referenciado em nenhuma outra parte da planilha-fonte (TAP, requisitos ou riscos). Mantido conforme a fonte; recomenda-se confirmar se é o nome de um sistema/parceiro específico do cliente ou um resíduo de outro projeto copiado no template.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="sig">Luiz Santos<br><span style="font-weight:400; color:#E2D3EE;">Superintendente de Projetos · Meireles e Freitas</span></p>
+    <p style="font-size:.82rem; color:#C4AEDA; margin-top:18px;">Projeto Light/RJ · Estruturação e Implantação — Status Report Executivo · Atualizado em 31/08/2026</p>
+  </div>
+</footer>
+
+</body>
+</html>
